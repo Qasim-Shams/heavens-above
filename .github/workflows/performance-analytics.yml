@@ -3,7 +3,7 @@ name: Performance Analytics
 on:
   workflow_dispatch:       # You can trigger it manually from the Actions tab
   schedule:
-    - cron: '30 17 * * *'   # every day at 10:30 PM Pakistan time
+    - cron: '15 * * * *'   # every day at 10:30 PM Pakistan time
 
 jobs:
   analyze-performance:
