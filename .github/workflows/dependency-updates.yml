@@ -2,8 +2,7 @@ name: Dependency Updates
 
 on:
   schedule:
-    - cron: '15 * * * *'
-  workflow_dispatch:
+    - cron: '*/5 * * * *' #every 5 minutes
 
 permissions:
   contents: write
