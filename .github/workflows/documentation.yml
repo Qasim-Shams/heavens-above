@@ -7,15 +7,26 @@ on:
 permissions:
   pages: write
   id-token: write
+  contents: read
 
 jobs:
   build-docs:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      # Checkout your repository
+      - name: Checkout code
+        uses: actions/checkout@v4
 
-      - uses: actions/configure-pages@v4
-      - uses: actions/upload-pages-artifact@v1
+      # Configure GitHub Pages
+      - name: Setup Pages
+        uses: actions/configure-pages@v4
+
+      # Upload your site’s content from the main folder
+      - name: Upload site artifact
+        uses: actions/upload-pages-artifact@v3
         with:
           path: ./
-      - uses: actions/deploy-pages@v1
+
+      # Deploy to GitHub Pages
+      - name: Deploy to GitHub Pages
+        uses: actions/deploy-pages@v4
