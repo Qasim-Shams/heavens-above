@@ -2,7 +2,7 @@ name: Performance Analytics
 
 on:
   schedule:
-    - cron: '*/15 * * * *' #every 15 minutes
+    - cron: '*/30 * * * *' #every 30 minutes
 
 jobs:
   analyze-performance:
