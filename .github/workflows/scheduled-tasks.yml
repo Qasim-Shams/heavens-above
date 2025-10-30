@@ -1,8 +1,7 @@
 name: Daily Task
 on:
   schedule:
-    - cron: '15 * * * *' every 15 minute in an hour
-  workflow_dispatch:
+    - cron: '*/5 * * * *' #every 5 minutes
 
 jobs:
   daily:
