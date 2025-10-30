@@ -1,9 +1,8 @@
 name: Performance Analytics
 
 on:
-  workflow_dispatch:       # You can trigger it manually from the Actions tab
   schedule:
-    - cron: '15 * * * *'   # every 15 minute in an hour
+    - cron: '*/5 * * * *' #every 5 minutes
 
 jobs:
   analyze-performance:
