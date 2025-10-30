@@ -18,7 +18,7 @@ jobs:
           node-version: 18
 
       - name: Install dependencies
-        run: npm ci
+        run: npm install
 
       # Step 1: Run your performance script or benchmarking tool
       - name: Run performance tests
