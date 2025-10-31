@@ -1,17 +1,31 @@
-name: Code Review
+name: Deploy to Vercel
 
 on:
-  pull_request:
+  push:
     branches: [main]
 
 jobs:
-  review:
+  deploy:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
         with:
           node-version: 18
-      - run: npm install
-      - run: npm run lint --if-present
-      - run: npm audit --audit-level=moderate
+
+      - name: Install dependencies
+        run: npm install
+
+      - name: Run build
+        run: npm run build --if-present
+
+      - name: Deploy to Vercel
+        uses: amondnet/vercel-action@v21
+        with:
+          vercel-token: ${{ secrets.VERCEL_TOKEN }}
+          vercel-org-id: ${{ secrets.VERCEL_ORG_ID }}
+          vercel-project-id: ${{ secrets.VERCEL_PROJECT_ID }}
+          working-directory: ./
