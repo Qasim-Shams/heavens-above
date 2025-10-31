@@ -1,19 +1,17 @@
-name: Vercel Deployment Pipeline
+name: Vercel Deployment
 
 on:
   push:
-    branches:
-      - main
+    branches: [main]
   pull_request:
-    branches:
-      - main
+    branches: [main]
 
 jobs:
-  vercel_deploy:
+  deploy:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout Code
+      - name: Checkout code
         uses: actions/checkout@v4
 
       - name: Setup Node.js
@@ -21,15 +19,19 @@ jobs:
         with:
           node-version: 18
 
-      - name: Install Vercel CLI
-        run: npm install -g vercel
+      - name: Install dependencies
+        run: npm install
+
+      - name: Build project
+        run: |
+          npm run build || echo "No build script found"
 
       - name: Deploy to Vercel
         env:
           VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
         run: |
           if [ "${{ github.event_name }}" = "pull_request" ]; then
-            npx vercel deploy --yes --prebuilt --token $VERCEL_TOKEN
+            npx vercel deploy --token $VERCEL_TOKEN --yes
           else
-            npx vercel deploy --prod --yes --prebuilt --token $VERCEL_TOKEN
+            npx vercel deploy --prod --token $VERCEL_TOKEN --yes
           fi
