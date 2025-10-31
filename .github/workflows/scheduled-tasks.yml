@@ -5,19 +5,12 @@ on:
     - cron: '*/5 * * * *' # every 5 minutes
 
 jobs:
-  maintenance:
+  daily:
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
-
-      - name: Set up Node.js
-        uses: actions/setup-node@v4
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
         with:
           node-version: 18
-
-      - name: Install dependencies
-        run: npm install
-
-      - name: Run maintenance script
-        run: node scripts/maintenance.js
+      - run: npm ci
+      - run: node run.js
