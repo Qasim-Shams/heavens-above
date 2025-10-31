@@ -2,7 +2,7 @@ name: Performance Metrics
 
 on:
   schedule:
-    - cron: '*/30 * * * *' # every 5 minutes
+    - cron: '*/30 * * * *' # every 30 minutes
 
 jobs:
   analyze-performance:
