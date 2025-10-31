@@ -1,32 +1,26 @@
-name: Performance Analytics
+name: Performance Metrics
 
 on:
   schedule:
-    - cron: '*/30 * * * *' # every 30 minutes
+    - cron: '0 */12 * * *' # every 12 hours
 
 jobs:
-  analyze-performance:
+  metrics:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+
       - uses: actions/setup-node@v4
         with:
           node-version: 18
+
       - run: npm install
+
       - name: Run performance tests
-        run: |
-          echo "Running performance tests..."
-          mkdir -p performance-results
-          node -e "
-          console.time('scraper');
-          require('./run.js');
-          console.timeEnd('scraper');
-          " | tee performance-results/report.txt
-      - name: Record system stats
-        run: |
-          echo 'CPU and Memory Usage:' >> performance-results/report.txt
-          top -b -n 1 | head -n 20 >> performance-results/report.txt
-      - uses: actions/upload-artifact@v4
+        run: node scripts/performance.js
+
+      - name: Upload results
+        uses: actions/upload-artifact@v4
         with:
           name: performance-report-${{ github.run_id }}
-          path: performance-results/report.txt
+          path: performance-results/
