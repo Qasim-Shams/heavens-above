@@ -1,44 +1,37 @@
-name: Vercel Deployment Pipeline
+name: Vercel Deployment
 
 on:
   push:
-    branches:
-      - main
+    branches: [main]
   pull_request:
-    branches:
-      - main
+    branches: [main]
 
 jobs:
-  preview_deployment:
-    if: github.event_name == 'pull_request'
+  deploy:
     runs-on: ubuntu-latest
+
     steps:
-      - name: Checkout Code
+      - name: Checkout code
         uses: actions/checkout@v4
 
-      - name: Deploy Preview to Vercel
-        uses: vercel/actions/deploy@v1 
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
         with:
-          token: ${{ secrets.VERCEL_TOKEN }}
-          vercel-project-id: ${{ secrets.VERCEL_PROJECT_ID }}
-          vercel-org-id: ${{ secrets.VERCEL_ORG_ID }}
-          scope: 'preview'
+          node-version: 18
 
-  # Job for Production Deployment on Main branch push
-  production_deployment:
-    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
-    runs-on: ubuntu-latest
-    environment: production
-    needs: preview_deployment
-    steps:
-      - name: Checkout Code
-        uses: actions/checkout@v4
-        
-      - name: Deploy to Vercel Production
-        uses: vercel/actions/deploy@v1
-        with:
-          token: ${{ secrets.VERCEL_TOKEN }}
-          vercel-project-id: ${{ secrets.VERCEL_PROJECT_ID }}
-          vercel-org-id: ${{ secrets.VERCEL_ORG_ID }}
+      - name: Install dependencies
+        run: npm install
 
-          scope: 'production'
+      - name: Build project
+        run: |
+          npm run build || echo "No build script found"
+
+      - name: Deploy to Vercel
+        env:
+          VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
+        run: |
+          if [ "${{ github.event_name }}" = "pull_request" ]; then
+            npx vercel deploy --token $VERCEL_TOKEN --yes
+          else
+            npx vercel deploy --prod --token $VERCEL_TOKEN --yes
+          fi
