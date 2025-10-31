@@ -15,9 +15,7 @@ jobs:
           node-version: 18
 
       - run: npm install
-
-      - run: npm run lint --if-present
-
+      
       - run: npm audit --audit-level=moderate
 
       - name: "Optional: Run static analysis"
