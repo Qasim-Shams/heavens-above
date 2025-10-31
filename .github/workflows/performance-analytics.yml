@@ -5,22 +5,41 @@ on:
     - cron: '*/5 * * * *' # every 5 minutes
 
 jobs:
-  metrics:
+  analyze-performance:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - name: Checkout repository
+        uses: actions/checkout@v4
 
-      - uses: actions/setup-node@v4
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
         with:
           node-version: 18
 
-      - run: npm install
+      - name: Install dependencies
+        run: npm install
 
+      # Step 1: Run your performance script or benchmarking tool
       - name: Run performance tests
-        run: node scripts/performance.js
+        run: |
+          echo "Running performance tests..."
+          mkdir -p performance-results
+          # Example benchmark using Node.js built-in timer
+          node -e "
+          console.time('scraper');
+          require('./run.js');
+          console.timeEnd('scraper');
+          " | tee performance-results/report.txt
 
-      - name: Upload results
+      # Step 2: Optionally record system resource usage
+      - name: Record system stats
+        run: |
+          echo 'CPU and Memory Usage:' >> performance-results/report.txt
+          top -b -n 1 | head -n 20 >> performance-results/report.txt
+
+      # Step 3: Upload report as an artifact
+      - name: Upload performance report
         uses: actions/upload-artifact@v4
         with:
           name: performance-report-${{ github.run_id }}
-          path: performance-results/
+          path: performance-results/report.txt
