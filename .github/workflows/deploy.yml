@@ -1,32 +1,44 @@
-name: Deploy to Vercel
+name: Vercel Deployment Pipeline
 
 on:
   push:
-    branches: [main]
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
 
 jobs:
-  deploy:
+  preview_deployment:
+    if: github.event_name == 'pull_request'
     runs-on: ubuntu-latest
-
     steps:
-      - name: Checkout code
+      - name: Checkout Code
         uses: actions/checkout@v4
 
-      - name: Set up Node.js
-        uses: actions/setup-node@v4
+      - name: Deploy Preview to Vercel
+        uses: vercel/actions/deploy@v1 
         with:
-          node-version: 18
+          token: ${{ secrets.VERCEL_TOKEN }}
+          vercel-project-id: ${{ secrets.VERCEL_PROJECT_ID }}
+          vercel-org-id: ${{ secrets.VERCEL_ORG_ID }}
+          scope: 'preview'
 
-      - name: Install dependencies
-        run: npm install
-
-      - name: Run build
-        run: npm run build --if-present
-
-      - name: Deploy to Vercel
-        uses: amondnet/vercel-action@v20
+  # Job for Production Deployment on Main branch push
+  production_deployment:
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    environment: production
+    needs: preview_deployment
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+        
+      - name: Deploy to Vercel Production
+        uses: vercel/actions/deploy@v1
         with:
-          vercel-token: ${{ secrets.VERCEL_TOKEN }}     
-          vercel-org-id: ${{ secrets.VERCEL_ORG_ID }}      
-          vercel-project-id: ${{ secrets.VERCEL_PROJECT_ID }} 
-          working-directory: ./                             
+          token: ${{ secrets.VERCEL_TOKEN }}
+          vercel-project-id: ${{ secrets.VERCEL_PROJECT_ID }}
+          vercel-org-id: ${{ secrets.VERCEL_ORG_ID }}
+
+          scope: 'production'
