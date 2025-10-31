@@ -4,42 +4,28 @@ on:
   push:
     branches: [main]
     paths:
-      - '**/*.md'
+      - '**/*.md'   # runs only when Markdown changes
 
 permissions:
-  contents: read
   pages: write
   id-token: write
+  contents: read
 
 jobs:
   build-and-deploy-docs:
     runs-on: ubuntu-latest
+
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      - name: Setup Node.js
-        uses: actions/setup-node@v4
-        with:
-          node-version: 18
-
-      - name: Install dependencies
-        run: npm install
-
-      - name: Build docs
-        run: npm run build-docs --if-present 
-
-      - name: Check output
-        run: ls -R
-
       - name: Configure GitHub Pages
         uses: actions/configure-pages@v4
-        with:
-          enablement: true
 
-      - name: Upload site artifact
+      - name: Upload README as site
         uses: actions/upload-pages-artifact@v3
         with:
-          path: ./dist
-      - name: Publish
+          path: .   # 👈 uploads the root folder (where README.md is)
+
+      - name: Deploy to GitHub Pages
         uses: actions/deploy-pages@v4
