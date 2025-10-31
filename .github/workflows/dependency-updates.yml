@@ -2,7 +2,7 @@ name: Dependency Updates
 
 on:
   schedule:
-    - cron: '*/30 * * * *' # every 30 minutes
+    - cron: '0 */6 * * *' # every 6 hours
 
 permissions:
   contents: write
@@ -14,16 +14,23 @@ jobs:
       - uses: actions/checkout@v4
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
+
       - uses: actions/setup-node@v4
         with:
           node-version: 18
-      - run: npm install -g npm-check-updates
-      - run: |
+
+      - name: Install npm-check-updates
+        run: npm install -g npm-check-updates
+
+      - name: Update dependencies
+        run: |
           ncu -u
           npm install
-      - run: |
-          git config user.name "Qasim-Shams"
-          git config user.email "muhammadqasim2110@outlook.com"
+
+      - name: Commit & push changes
+        run: |
+          git config user.name "CI Bot"
+          git config user.email "ci-bot@example.com"
           git add package*.json
-          git commit -m "chore: update dependencies" || echo "No dependency updates found"
+          git commit -m "chore: update dependencies" || echo "No updates found"
           git push
