@@ -1,16 +1,23 @@
-name: Daily Task
+name: Scheduled Tasks
 
 on:
   schedule:
-    - cron: '*/30 * * * *' # every 30 minutes
+    - cron: '0 0 * * *' # runs daily at midnight UTC
 
 jobs:
-  daily:
+  maintenance:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
         with:
           node-version: 18
-      - run: npm install
-      - run: node run.js
+
+      - name: Install dependencies
+        run: npm install
+
+      - name: Run maintenance script
+        run: node scripts/maintenance.js
