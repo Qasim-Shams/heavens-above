@@ -20,5 +20,6 @@ jobs:
 
       - run: npm audit --audit-level=moderate
 
-      - name: Optional: Run static analysis
+      - name: "Optional: Run static analysis"
         run: npm run analyze --if-present
+
