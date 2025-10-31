@@ -1,48 +1,36 @@
-name: Docker Base Image Update Check
+name: Dependency Updates
 
 on:
   schedule:
-    - cron: '*/30 * * * *'
+    - cron: '*/30 * * * *' # every 30 minutes
 
 permissions:
   contents: write
-  pull-requests: write
 
 jobs:
-  check_docker_image:
+  update:
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout Code
-        uses: actions/checkout@v4
-
-      - name: Check for New Base Image Tag (e.g., node:lts-slim)
-        id: check
-        # Example: Using grep to check a file (Dockerfile) for a specific tag
-        run: |
-          # Replace 'node:20.10.0-slim' with the specific tag you want to update to
-          NEW_TAG="node:20-lts-slim" 
-          # Example assumes you have a Dockerfile with a specific 'FROM' line
-          FILE_TO_CHECK="Dockerfile" 
-
-          if grep -q "FROM node:20.10.0-slim" $FILE_TO_CHECK; then
-            echo "::set-output name=update_needed::true"
-            echo "::set-output name=old_tag::node:20.10.0-slim"
-            echo "::set-output name=new_tag::${NEW_TAG}"
-            # This would run a script to sed/replace the old tag with the new one
-            # and create a temporary change to stage for the PR.
-          else
-            echo "::set-output name=update_needed::false"
-          fi
-
-      - name: Create PR for Dockerfile Change
-        if: steps.check.outputs.update_needed == 'true'
-        uses: peter-evans/create-pull-request@v6
+      - uses: actions/checkout@v4
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
-          commit-message: "chore(deps): update Docker base image to ${{ steps.check.outputs.new_tag }}"
-          branch: "chore/docker-update"
-          title: "🤖 Chore: Update Docker Base Image"
-          body: |
-            This PR updates the Dockerfile base image tag from ${{ steps.check.outputs.old_tag }} to ${{ steps.check.outputs.new_tag }}.
-            
-            Please verify all build steps and application functionality before merging.
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 18
+
+      - name: Install npm-check-updates
+        run: npm install -g npm-check-updates
+
+      - name: Update dependencies
+        run: |
+          ncu -u
+          npm install
+
+      - name: Commit & push changes
+        run: |
+          git config user.name "Qasim-Shams"
+          git config user.email "muhammadqasim2110@outlook.com"
+          git add package*.json
+          git commit -m "chore: update dependencies" || echo "No updates found"
+          git push
