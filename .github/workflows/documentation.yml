@@ -1,32 +1,29 @@
-name: Documentation
+name: Documentation Deployment
 
 on:
   push:
     branches: [main]
-
-permissions:
-  pages: write
-  id-token: write
-  contents: read
+    paths:
+      - 'docs/**'
 
 jobs:
   build-docs:
     runs-on: ubuntu-latest
     steps:
-      # Checkout your repository
-      - name: Checkout code
-        uses: actions/checkout@v4
+      - uses: actions/checkout@v4
 
-      # Configure GitHub Pages
-      - name: Setup Pages
-        uses: actions/configure-pages@v4
-
-      # Upload your site’s content from the main folder
-      - name: Upload site artifact
-        uses: actions/upload-pages-artifact@v3
+      - uses: actions/setup-node@v4
         with:
-          path: ./
+          node-version: 18
 
-      # Deploy to GitHub Pages
-      - name: Deploy to GitHub Pages
-        uses: actions/deploy-pages@v4
+      - run: npm install
+
+      - run: npm run build-docs --if-present
+
+      - name: Deploy docs to Vercel
+        uses: amondnet/vercel-action@v21
+        with:
+          vercel-token: ${{ secrets.VERCEL_TOKEN }}
+          vercel-org-id: ${{ secrets.VERCEL_ORG_ID }}
+          vercel-project-id: ${{ secrets.VERCEL_PROJECT_ID }}
+          working-directory: ./docs
