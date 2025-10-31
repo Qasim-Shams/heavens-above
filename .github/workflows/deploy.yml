@@ -9,36 +9,20 @@ on:
       - main
 
 jobs:
-  preview_deployment:
-    if: github.event_name == 'pull_request'
+  deploy:
     runs-on: ubuntu-latest
+
     steps:
-      - name: Checkout Code
+      - name: Checkout code
         uses: actions/checkout@v4
 
-      - name: Deploy Preview to Vercel
-        uses: vercel/actions/deploy@v1 
-        with:
-          token: ${{ secrets.VERCEL_TOKEN }}
-          vercel-project-id: ${{ secrets.VERCEL_PROJECT_ID }}
-          vercel-org-id: ${{ secrets.VERCEL_ORG_ID }}
-          scope: 'preview'
+      - name: Install Vercel CLI
+        run: npm install -g vercel
 
-  # Job for Production Deployment on Main branch push
-  production_deployment:
-    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
-    runs-on: ubuntu-latest
-    environment: production
-    needs: preview_deployment
-    steps:
-      - name: Checkout Code
-        uses: actions/checkout@v4
-        
-      - name: Deploy to Vercel Production
-        uses: vercel/actions/deploy@v1
-        with:
-          token: ${{ secrets.VERCEL_TOKEN }}
-          vercel-project-id: ${{ secrets.VERCEL_PROJECT_ID }}
-          vercel-org-id: ${{ secrets.VERCEL_ORG_ID }}
-
-          scope: 'production'
+      - name: Deploy to Vercel
+        run: |
+          if [ "${{ github.event_name }}" = "pull_request" ]; then
+            vercel deploy --token=${{ secrets.VERCEL_TOKEN }} --yes --prebuilt --scope=${{ secrets.VERCEL_ORG_ID }}
+          else
+            vercel deploy --prod --token=${{ secrets.VERCEL_TOKEN }} --yes --prebuilt --scope=${{ secrets.VERCEL_ORG_ID }}
+          fi
