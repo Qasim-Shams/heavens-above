@@ -27,11 +27,10 @@ jobs:
       - name: Deploy to Vercel
         env:
           VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
-          VERCEL_ORG_ID: ${{ secrets.VERCEL_ORG_ID }}
           VERCEL_PROJECT_ID: ${{ secrets.VERCEL_PROJECT_ID }}
         run: |
           if [ "${{ github.event_name }}" = "pull_request" ]; then
-            vercel deploy --yes --prebuilt --scope=$VERCEL_ORG_ID --token=$VERCEL_TOKEN
+            npx vercel deploy --yes --prebuilt --token $VERCEL_TOKEN
           else
-            vercel deploy --prod --yes --prebuilt --scope=$VERCEL_ORG_ID --token=$VERCEL_TOKEN
+            npx vercel deploy --prod --yes --prebuilt --token $VERCEL_TOKEN
           fi
